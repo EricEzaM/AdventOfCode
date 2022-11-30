@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Create": {
+      "commandName": "Project",
+      "commandLineArgs": "create 2021 2"
+    },
+    "Results": {
+      "commandName": "Project",
+      "commandLineArgs": "results 2021 2"
+    }
+  }
+}
