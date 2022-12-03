@@ -16,6 +16,9 @@
         <None Include="**/input.txt" Exclude="bin/**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Include="**/sample.txt" Exclude="bin/**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
