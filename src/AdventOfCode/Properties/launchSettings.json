@@ -11,7 +11,7 @@
     },
     "Results Sample": {
       "commandName": "Project",
-      "commandLineArgs": "results 2022 2 --sample"
+      "commandLineArgs": "results 2022 3 --sample"
     }
   }
 }
