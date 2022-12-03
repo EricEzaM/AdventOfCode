@@ -95,16 +95,19 @@ public class CreateCommand : Command
             |/// </summary>";
         
         var file = @$"using AdventOfCode.Lib;
+                    |using AdventOfCode.Lib.Attributes;
                     |
                     |namespace AdventOfCode.Y{year}.D{day:00};
                     |{comment}
                     |public class Y{year}D{day:00}{iterationString} : ISolution
                     |{{
+                    |    [ExpectedResult("""")]
                     |    public object SolvePartOne(string input)
                     |    {{
                     |        return string.Empty;
                     |    }}
                     |
+                    |    [ExpectedResult("""")]
                     |    public object SolvePartTwo(string input)
                     |    {{
                     |        return string.Empty;

@@ -20,22 +20,7 @@ Parser BuildParser(IServiceProvider serviceProvider)
         cliBuilder.Command.AddCommand(command);
     }
 
-    // Same as .UseDefaults(), except we customise exception handling. 
-    return cliBuilder
-           .UseVersionOption()
-           .UseHelp()
-           .UseEnvironmentVariableDirective()
-           .UseParseDirective()
-           .UseSuggestDirective()
-           .RegisterWithDotnetSuggest()
-           .UseTypoCorrections()
-           .UseParseErrorReporting()
-           .UseExceptionHandler((exception, context) =>
-           {
-               Console.WriteLine(exception.Message);
-           })
-           .CancelOnProcessTermination()
-           .Build();
+    return cliBuilder.UseDefaults().Build();
 }
 
 ServiceProvider BuildServiceProvider()

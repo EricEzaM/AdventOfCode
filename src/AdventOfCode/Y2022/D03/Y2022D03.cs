@@ -1,16 +1,19 @@
 using AdventOfCode.Lib;
+using AdventOfCode.Lib.Attributes;
 
 namespace AdventOfCode.Y2022.D03;
 
 public class Y2022D03 : ISolution
 {
+    [ExpectedResult(8394, Sample = 157)]
     public object SolvePartOne(string input)
     {
         return InputHelpers.AsLines(input)
             .SelectMany(GetItemInBothCompartments)
             .Sum(CharPriority);
     }
-
+    
+    [ExpectedResult(2413, Sample = 70)]
     public object SolvePartTwo(string input)
     {
         return InputHelpers.AsLines(input)

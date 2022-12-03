@@ -1,50 +1,47 @@
+using System.Diagnostics;
 using AdventOfCode.Lib;
+using AdventOfCode.Lib.Attributes;
 
 namespace AdventOfCode.Y2022.D02;
 
 public class Y2022D02 : ISolution
 {
-    private readonly List<string> _rps = new() { "A", "B", "C" };
+    private readonly List<char> _rps = new() { 'A', 'B', 'C' };
 
+    [ExpectedResult(11150, Sample = 15)]
     public object SolvePartOne(string input) =>
         GetRpsGames(input, (_, you) => you switch
             {
-                "X" => "A",
-                "Y" => "B",
-                "Z" => "C",
+                'X' => 'A',
+                'Y' => 'B',
+                'Z' => 'C',
                 _ => throw new ArgumentOutOfRangeException(nameof(you), you, null)
             })
             .Aggregate(0, (agg, game) => agg + GetGameScore(game.opponent, game.you));
 
+    [ExpectedResult(8295, Sample = 12)]
     public object SolvePartTwo(string input) =>
         GetRpsGames(input, (opp, you) => you switch
             {
-                "X" => GetPrevious(opp), // Must lose
-                "Y" => opp, // Must Draw
-                "Z" => GetNext(opp), // Must Win
+                'X' => GetLoser(opp),
+                'Y' => opp,
+                'Z' => GetWinner(opp),
                 _ => throw new ArgumentOutOfRangeException(nameof(you), you, null)
             })
             .Aggregate(0, (agg, game) => agg + GetGameScore(game.opponent, game.you));
 
-    /// <summary>
-    /// Get next R/P/S selection from the list, after selection.
-    /// </summary>
-    private string GetNext(string selection) => 
+    private char GetWinner(char selection) => 
         _rps[(_rps.IndexOf(selection) + 1) % _rps.Count];
 
-    /// <summary>
-    /// Get previous R/P/S selection from the list, after selection.
-    /// </summary>
-    private string GetPrevious(string selection)
+    private char GetLoser(char selection)
     {
         int idx = _rps.IndexOf(selection) - 1;
         return idx < 0 ? _rps.Last() : _rps[idx];
     }
 
-    private int GetGameScore(string opponent, string you)
+    private int GetGameScore(char opponent, char you)
     {
         int baseScore = _rps.IndexOf(you) + 1;
-
         if (you == opponent)
         {
             return baseScore + 3;
@@ -59,14 +56,16 @@ public class Y2022D02 : ISolution
     /// Get the rock/paper scissors games from the input.
     /// </summary>
     /// <param name="input">The puzzle input.</param>
-    /// <param name="mapOppYou">Allows changing the 'you' result based on the puzzle input.</param>
-    private IEnumerable<(string opponent, string you)> GetRpsGames(string input, Func<string, string, string> mapOppYou)
+    /// <param name="mapYourValue">Allows changing the 'you' result based on the puzzle input. Fn inputs are (opponent, you)</param>
+    private IEnumerable<(char opponent, char you)> GetRpsGames(string input, Func<char, char, char> mapYourValue)
     {
         return input.Split('\n')
             .Select(line =>
             {
                 string[] split = line.Split(' ');
-                return (split[0], mapOppYou(split[0], split[1]));
+                char opponent = split[0][0];
+                char you = split[1][0];
+                return (opponent, mapYourValue(opponent, you));
             });
     }
 }

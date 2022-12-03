@@ -1,5 +1,9 @@
 ﻿using System.CommandLine;
+using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using AdventOfCode.Lib.Attributes;
+using Spectre.Console;
 
 namespace AdventOfCode.Lib.Cli;
 
@@ -22,7 +26,7 @@ public class ResultsCommand : Command
 
     private void HandleCommand(int? filterYear, int? filterDay, bool today, bool useSample)
     {
-        var solutions = Assembly
+        var solutionTypes = Assembly
                         .GetEntryAssembly()!
                         .GetTypes()
                         .Where(t => t.GetInterface(nameof(ISolution)) is not null)
@@ -33,38 +37,109 @@ public class ResultsCommand : Command
             filterYear = DateTime.Now.Year;
             filterDay = DateTime.Now.Day;
         }
-        
-        foreach (var solutionType in solutions)
+
+        AnsiConsole.WriteLine($"Solutions for Y={filterYear ?? '*'} D={filterDay ?? '*'}");
+
+        var errs = new List<string>();
+        var table = new Table();
+        table.AddColumns("Year", "Day", "Alt", "P1", "P1 time", "P2", "P2 time");
+        foreach (var solutionType in solutionTypes)
         {
             if (Activator.CreateInstance(solutionType) is not ISolution solution)
             {
                 continue;
             }
-            
-            string[] namespaceComponents = solutionType.Namespace!.Split(".");
 
-            string yearText = namespaceComponents.Skip(1).Take(1).Single();
-            string dayText = namespaceComponents.Skip(2).Take(1).Single();
-                
-            int year = int.Parse(yearText.TrimStart('Y'));
-            int day = int.Parse(dayText.TrimStart('D'));
-
-            if ((filterYear != null && year != filterYear) || (filterDay != null && day != filterDay))
+            if (!DoesClassPassFilter(solutionType, filterYear, filterDay, out string yearText, out string dayText))
             {
                 continue;
             }
-                
-            Console.WriteLine($"***** SOLUTION {yearText} {dayText} *****");
+            
+            int altNum = GetAlternativeNumber(solutionType);
             string inputFile = Path.Combine(yearText, dayText, useSample ? "sample.txt" : "input.txt");
             if (!File.Exists(inputFile))
             {
-                throw new FileNotFoundException($"Input file '{inputFile}' cannot be found!", inputFile);
+                table.AddRow(yearText, dayText, altNum.ToString(), "???", "???", "???", "???");
+                errs.Add($"Failed to find input file for {yearText} {dayText}: {inputFile}");
+                continue;
             }
-            
-            string input = File.ReadAllText(inputFile);
 
-            Console.WriteLine($"Part One = {solution.SolvePartOne(input)}");
-            Console.WriteLine($"Part Two = {solution.SolvePartTwo(input)}");
+            string input = File.ReadAllText(inputFile);
+            
+            var sw = Stopwatch.StartNew();
+            var p1 = solution.SolvePartOne(input);
+            var p1Time = $"{sw.Elapsed.TotalMilliseconds:F3} ms";
+            
+            sw.Restart();
+            var p2 = solution.SolvePartTwo(input);
+            var p2Time = $"{sw.Elapsed.TotalMilliseconds:F3} ms";
+            sw.Stop();
+
+            var p1Expected = GetExpected(solutionType, nameof(ISolution.SolvePartOne), useSample);
+            var p2Expected = GetExpected(solutionType, nameof(ISolution.SolvePartTwo), useSample);
+
+            var p1Text = new Text(p1.ToString() ?? string.Empty, GetStyle(p1Expected, p1));
+            var p2Text = new Text(p2.ToString() ?? string.Empty, GetStyle(p2Expected, p2));
+
+            table.AddRow(
+                new Text(yearText),
+                new Text(dayText),
+                new Text(altNum.ToString()),
+                p1Text,
+                new Text(p1Time),
+                p2Text,
+                new Text(p2Time));
         }
+        
+        AnsiConsole.Write(table);
+        foreach (string err in errs)
+        {
+            AnsiConsole.WriteLine(err);
+        }
+    }
+
+    private int GetAlternativeNumber(Type type)
+    {
+        var match = Regex.Match(type.Name, @"A(\d+)$");
+        if (match.Success)
+        {
+            return int.Parse(match.Groups[1].Value);
+        }
+
+        return 0;
+    }
+
+    private object? GetExpected(Type type, string methodName, bool sample)
+    {
+        var attr = type.GetMethod(methodName)!.GetCustomAttribute<ExpectedResultAttribute>();
+        return sample ? attr?.Sample : attr?.Expected;
+    }
+
+    private Style GetStyle(object? expected, object actual) =>
+        expected is null 
+            ? Style.Plain 
+            : new Style(expected.Equals(actual) ? Color.Green : Color.Red);
+
+    private bool DoesClassPassFilter(Type type, int? filterYear, int? filterDay, out string yearText, out string dayText)
+    {
+        string[] namespaceComponents = type.Namespace!.Split(".");
+        
+        yearText = namespaceComponents.Skip(1).Take(1).Single();
+        dayText = namespaceComponents.Skip(2).Take(1).Single();
+
+        int year = int.Parse(yearText.TrimStart('Y'));
+        int day = int.Parse(dayText.TrimStart('D'));
+        
+        if (filterYear is null)
+        {
+            return true;
+        }
+
+        if (filterDay is null)
+        {
+            return filterYear == year;
+        }
+
+        return filterYear == year && filterDay == day;
     }
 }

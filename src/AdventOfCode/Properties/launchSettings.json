@@ -7,7 +7,7 @@
     },
     "Results": {
       "commandName": "Project",
-      "commandLineArgs": "results 2022 2"
+      "commandLineArgs": "results 2022"
     },
     "Results Sample": {
       "commandName": "Project",
