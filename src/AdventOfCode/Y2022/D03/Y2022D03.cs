@@ -4,59 +4,37 @@ namespace AdventOfCode.Y2022.D03;
 
 public class Y2022D03 : ISolution
 {
-    class Rucksack
-    {
-        public Rucksack(string contents)
-        {
-            Contents = contents;
-            C1 = Contents.Substring(0, contents.Length / 2);
-            C2 = Contents.Substring(contents.Length / 2);
-        }
-        
-        public string Contents { get; }
-        public string C1 { get; }
-        public string C2 { get; }
-
-        public IEnumerable<char> GetShared()
-        {
-            return C1.Intersect(C2);
-        }
-    }
-
-    private readonly List<char> _chars = Enumerable.Repeat('a', 26)
-        .Select((c, idx) => (char)(c + idx))
-        .Concat(Enumerable.Repeat('A', 26)
-            .Select((c, idx) => (char)(c + idx)))
-        .ToList();
-
     public object SolvePartOne(string input)
     {
-        return GetRucksacks(input)
-            .Select(r => r.GetShared())
-            .SelectMany(shared => shared)
-            .Select(c => _chars.IndexOf(c) + 1)
-            .Sum();
+        return InputHelpers.AsLines(input)
+            .SelectMany(GetItemInBothCompartments)
+            .Sum(CharPriority);
     }
 
     public object SolvePartTwo(string input)
     {
-        return GetRucksacks(input)
+        return InputHelpers.AsLines(input)
             .Chunk(3)
             .Select(GetCommonItem)
-            .Sum(c => _chars.IndexOf(c) + 1);
+            .Sum(CharPriority);
     }
     
-    private char GetCommonItem(Rucksack[] rucksacks)
+    private int CharPriority(char c) => c switch
+    {
+        >= 'a' and <= 'z' => c - 'a' + 1,
+        >= 'A' and <= 'Z' => c - 'A' + 27,
+        _ => throw new ArgumentOutOfRangeException(nameof(c), c, null)
+    };
+    
+    private char GetCommonItem(string[] rucksacks)
     {
         return rucksacks
-            .Select(r => r.Contents)
-            .Aggregate(string.Concat(_chars), (common, content) => string.Concat(common.Intersect(content)))
+            .Skip(1)
+            .Aggregate(rucksacks.First().AsEnumerable(), (common, content) => common.Intersect(content))
             .First();
     }
 
-    private IEnumerable<Rucksack> GetRucksacks(string input)
-    {
-        return input.Split('\n')
-            .Select(l => new Rucksack(l));
-    }
+    private IEnumerable<char> GetItemInBothCompartments(string contents) =>
+        contents.Substring(0, contents.Length / 2)
+            .Intersect(contents.Substring(contents.Length / 2));
 }

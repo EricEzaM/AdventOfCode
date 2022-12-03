@@ -2,10 +2,10 @@
 
 public static class InputHelpers
 {
-    public static IEnumerable<int> AsInts(string input)
-    {
-        return input
-               .Split('\n')
-               .Select(int.Parse);
-    }
+    public static IEnumerable<string> AsLines(string input) =>
+        input.Split('\n');
+    
+    public static IEnumerable<int> AsInts(string input) =>
+        AsLines(input)
+            .Select(int.Parse);
 }
