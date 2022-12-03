@@ -4,70 +4,69 @@ namespace AdventOfCode.Y2022.D02;
 
 public class Y2022D02 : ISolution
 {
-    private const string Rock = "R";
-    private const string Paper = "P";
-    private const string Scissors = "S";
+    private readonly List<string> _rps = new() { "A", "B", "C" };
 
-    private readonly Dictionary<string, int> _selectionScores = new()
-    {
-        { Rock, 1 },
-        { Paper, 2 },
-        { Scissors, 3 },
-    };
+    public object SolvePartOne(string input) =>
+        GetRpsGames(input, (_, you) => you switch
+            {
+                "X" => "A",
+                "Y" => "B",
+                "Z" => "C",
+                _ => throw new ArgumentOutOfRangeException(nameof(you), you, null)
+            })
+            .Aggregate(0, (agg, game) => agg + GetGameScore(game.opponent, game.you));
 
-    private readonly Dictionary<string, string> _selectionMap = new()
-    {
-        { "X", Rock },
-        { "Y", Paper },
-        { "Z", Scissors },
-        { "A", Rock },
-        { "B", Paper },
-        { "C", Scissors },
-    };
+    public object SolvePartTwo(string input) =>
+        GetRpsGames(input, (opp, you) => you switch
+            {
+                "X" => GetPrevious(opp), // Must lose
+                "Y" => opp, // Must Draw
+                "Z" => GetNext(opp), // Must Win
+                _ => throw new ArgumentOutOfRangeException(nameof(you), you, null)
+            })
+            .Aggregate(0, (agg, game) => agg + GetGameScore(game.opponent, game.you));
 
-    private readonly Dictionary<string, string> _winConds = new()
+    /// <summary>
+    /// Get next R/P/S selection from the list, after selection.
+    /// </summary>
+    private string GetNext(string selection) => 
+        _rps[(_rps.IndexOf(selection) + 1) % _rps.Count];
+
+    /// <summary>
+    /// Get previous R/P/S selection from the list, after selection.
+    /// </summary>
+    private string GetPrevious(string selection)
     {
-        { Rock, Paper },
-        { Paper, Scissors },
-        { Scissors, Rock }
-    };
-    
-    public object SolvePartOne(string input)
-    {
-        int totalScore = GetRpsGames(input)
-            .Aggregate(0, (agg, game) => agg + CalculateGameScore(game.opponent, game.you));
-        
-        return totalScore;
+        int idx = _rps.IndexOf(selection) - 1;
+        return idx < 0 ? _rps.Last() : _rps[idx];
     }
 
-    public object SolvePartTwo(string input)
+    private int GetGameScore(string opponent, string you)
     {
-        return string.Empty;
-    }
+        int baseScore = _rps.IndexOf(you) + 1;
 
-    private int CalculateGameScore(string opponent, string you)
-    {
-        int baseScore = _selectionScores[you];
-        if (_winConds[opponent] == you)
-        {
-            return baseScore + 6;
-        }
-
-        if (opponent == you)
+        if (you == opponent)
         {
             return baseScore + 3;
         }
 
-        return baseScore;
+        // Use indices as B > A, C > B, A > C.
+        bool win = _rps.IndexOf(you) == (_rps.IndexOf(opponent) + 1) % _rps.Count;
+        return baseScore + (win ? 6 : 0);
     }
-    
-    private IEnumerable<(string opponent, string you)> GetRpsGames(string input)
+
+    /// <summary>
+    /// Get the rock/paper scissors games from the input.
+    /// </summary>
+    /// <param name="input">The puzzle input.</param>
+    /// <param name="mapOppYou">Allows changing the 'you' result based on the puzzle input.</param>
+    private IEnumerable<(string opponent, string you)> GetRpsGames(string input, Func<string, string, string> mapOppYou)
     {
         return input.Split('\n')
             .Select(line =>
             {
                 string[] split = line.Split(' ');
-                return (_selectionMap[split[0]], _selectionMap[split[1]]);
+                return (split[0], mapOppYou(split[0], split[1]));
             });
     }
 }
