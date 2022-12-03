@@ -26,11 +26,14 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddCliRequiredServices(this IServiceCollection services)
     {
-        services.AddHttpClient<CreateCommand>()
-                .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler()
-                {
-                    UseCookies = false
-                });
+        services.AddHttpClient<CreateCommand>(c =>
+            {
+                c.DefaultRequestHeaders.Add("User-Agent", "github.com/EricEzaM/AdventOfCode by eric@iameric.net");
+            })
+            .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler()
+            {
+                UseCookies = false,
+            });
 
         return services;
     }
