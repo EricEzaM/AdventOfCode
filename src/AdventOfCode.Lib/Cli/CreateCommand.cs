@@ -35,19 +35,32 @@ public class CreateCommand : Command
             throw new ApplicationException("Year or day is not provided");
         }
 
+        // Create .cs puzzle solution file. If it already exists, create another with 'A{X}' appended
+        // for alternative solutions.
         string dir = Path.Combine($"Y{year}", $"D{day:00}");
         Directory.CreateDirectory(dir);
 
-        string solutionFilePath = Path.Combine(dir, $"Y{year.Value}D{day.Value:00}.cs");
-
-        if (File.Exists(solutionFilePath))
+        int fileCount = 0;
+        string csPath = Path.Combine(dir, $"Y{year.Value}D{day.Value:00}.cs");
+        while (File.Exists(csPath))
         {
-            throw new ApplicationException("It appears the solution scaffolding has already been done! The .cs file exists!");
+            string replaceMe = fileCount == 0 ? "." : $"A{fileCount}.";
+            fileCount++;
+            csPath = csPath.Replace(replaceMe, $"A{fileCount}.");
         }
         
-        string solutionFileContent = GenerateSolutionFile(year.Value, day.Value);
-        await File.WriteAllTextAsync(solutionFilePath, solutionFileContent);
-        Console.WriteLine($"Solution file created at {solutionFilePath}");
+        string solutionFileContent = GenerateSolutionFile(year.Value, day.Value, fileCount);
+        await File.WriteAllTextAsync(csPath, solutionFileContent);
+        Console.WriteLine($"Solution file #{fileCount} created at {csPath}");
+
+        // Create the input.txt file by downloading it from the advent of code site.
+        // Must have the SESSION cookie value configured as secret or env var.
+        string inputFilePath = Path.Combine(dir, "input.txt");
+        if (File.Exists(inputFilePath))
+        {
+            Console.WriteLine($"Input file already exists at {inputFilePath}");
+            return;
+        }
         
         var req = new HttpRequestMessage(HttpMethod.Get, $"https://adventofcode.com/{year}/day/{day}/input");
         req.Headers.Add("Cookie", $"session={GetSession()}");
@@ -55,18 +68,15 @@ public class CreateCommand : Command
 
         if (res.IsSuccessStatusCode)
         {
-            string contentFilePath = Path.Combine(dir, "input.txt");
             var content = await res.Content.ReadAsStringAsync();
-            await File.WriteAllTextAsync(contentFilePath, content.TrimEnd('\n'));
+            await File.WriteAllTextAsync(inputFilePath, content.TrimEnd('\n'));
             
-            Console.WriteLine($"Input file created at {contentFilePath}");
+            Console.WriteLine($"Input file created at {inputFilePath}");
         }
         else
         {
             Console.WriteLine($"Request for input failed ({req.RequestUri})");
         }
-        
-        return;
     }
 
     private string GetSession() =>
@@ -74,13 +84,21 @@ public class CreateCommand : Command
         ?? _config["AOC_SESSION"]
         ?? throw new ApplicationException("AOC_SESSION is not set in environment or configuration (via secrets).");
 
-    private string GenerateSolutionFile(int year, int day)
+    private string GenerateSolutionFile(int year, int day, int iteration)
     {
+        string iterationString = iteration == 0 ? "" : $"A{iteration}";
+
+        var comment = iteration == 0 ? "" : 
+            $@"
+            |/// <summary>
+            |/// Alternative solution #{iteration} 
+            |/// </summary>";
+        
         var file = @$"using AdventOfCode.Lib;
                     |
                     |namespace AdventOfCode.Y{year}.D{day:00};
-                    |
-                    |public class Y{year}D{day:00} : ISolution
+                    |{comment}
+                    |public class Y{year}D{day:00}{iterationString} : ISolution
                     |{{
                     |    public object SolvePartOne(string input)
                     |    {{
