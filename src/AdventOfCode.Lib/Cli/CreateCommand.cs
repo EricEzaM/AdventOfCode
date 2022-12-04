@@ -9,12 +9,12 @@ public class CreateCommand : Command
     private readonly IConfiguration _config;
     private readonly HttpClient _httpClient;
 
-    public CreateCommand(IConfiguration config, HttpClient httpClient) : base("create", "Creates a solution template for a given year and day.")
+    public CreateCommand(IConfiguration config, HttpClient httpClient) : base("create", "Creates a solution template for a given year and day. Uses today if not year/day provided.")
     {
         _config = config;
         _httpClient = httpClient;
-        var yearArg = new Argument<int?>("year");
-        var dayArg = new Argument<int?>("day");
+        var yearArg = new Argument<int?>("year", "The year, or omit if today's year.");
+        var dayArg = new Argument<int?>("day", "The day, or omit if today's date.");
         
         Add(yearArg);
         Add(dayArg);

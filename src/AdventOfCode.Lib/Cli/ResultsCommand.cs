@@ -11,9 +11,9 @@ public class ResultsCommand : Command
 {
     public ResultsCommand() : base("results", "Lists results, optionally for a specific year/day.")
     {
-        var yearOpt = new Argument<int?>("year");
-        var dayOpt = new Argument<int?>("day");
-        var todayOpt = new Option<bool>("--today");
+        var yearOpt = new Argument<int?>("year", "The year filter.");
+        var dayOpt = new Argument<int?>("day", "The day filter.");
+        var todayOpt = new Option<bool>("--today", "Output results for today's date.");
         var sampleOpt = new Option<bool>("--sample", "Run on sample file, if it exists?");
         
         Add(yearOpt);
