@@ -101,13 +101,13 @@ public class CreateCommand : Command
                     |{comment}
                     |public class Y{year}D{day:00}{iterationString} : ISolution
                     |{{
-                    |    [ExpectedResult("""")]
+                    |    [ExpectedResult("""", Sample = """")]
                     |    public object SolvePartOne(string input)
                     |    {{
                     |        return string.Empty;
                     |    }}
                     |
-                    |    [ExpectedResult("""")]
+                    |    [ExpectedResult("""", Sample = """")]
                     |    public object SolvePartTwo(string input)
                     |    {{
                     |        return string.Empty;
