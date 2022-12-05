@@ -30,7 +30,6 @@ public class Y2022D05 : ISolution
     {
         var stacks = ParseStartStacks(input);
         var movements = ParseMovements(input);
-
         
         // A bit hacky, just to keep using the stacks :)
         List<string> toPush = new();
@@ -66,7 +65,7 @@ public class Y2022D05 : ISolution
 
         return InputHelpers.AsLines(split[0])
                            .Select(l => l.Chunk(4).Select(cs => new string(cs).Trim()))
-                           .Take(Range.EndAt(^1))
+                           .SkipLast(1)
                            .Reverse()
                            .SelectMany(crate => crate)
                            .Select((crate, index) => (crate, index))
