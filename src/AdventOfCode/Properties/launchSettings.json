@@ -5,13 +5,13 @@
       "commandName": "Project",
       "commandLineArgs": "create 2021 2"
     },
-    "Results": {
+    "Results Today": {
       "commandName": "Project",
-      "commandLineArgs": "results 2022"
+      "commandLineArgs": "results --today"
     },
-    "Results Sample": {
+    "Results Today Sample": {
       "commandName": "Project",
-      "commandLineArgs": "results 2022 3 --sample"
+      "commandLineArgs": "results --today --sample"
     }
   }
 }

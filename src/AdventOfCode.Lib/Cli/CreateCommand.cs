@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using Spectre.Console;
 
 namespace AdventOfCode.Lib.Cli;
 
@@ -35,6 +36,8 @@ public class CreateCommand : Command
             throw new ApplicationException("Year or day is not provided");
         }
 
+        AnsiConsole.WriteLine($"Creating solution structure for Y={year} D={day}");
+        
         // Create .cs puzzle solution file. If it already exists, create another with 'A{X}' appended
         // for alternative solutions.
         string dir = Path.Combine($"Y{year}", $"D{day:00}");
