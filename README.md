@@ -1,6 +1,8 @@
 # Advent of Code C#
 Advent of Code in C# - puzzle solutions & framework for easy creation of solution code.
 
+The goal of (most) of my solutions is to have them be as generic as possible - i.e. trying to avoid magic numbers that only apply to my dataset.
+
 ## Usage
 * Ensure your working directory is in the directory where `AdventOfCode.csproj` is locationed (currently `src/AdventOfCode/`) before running `dotnet run` commands.
 * Use `dotnet user-secrets` or an environment variable to store your session id from `https://adventofcode.com/` once you have logged in. This allows downloading your input data automatically. 
