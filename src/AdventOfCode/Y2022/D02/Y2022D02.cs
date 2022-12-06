@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using AdventOfCode.Lib;
 using AdventOfCode.Lib.Attributes;
 
