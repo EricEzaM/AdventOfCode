@@ -23,20 +23,20 @@ public class Y2022D07 : ISolution
                        .Value;
     }
 
+    private const string CdStr = "$ cd ";
+    private const string DirStr = "dir ";
+    
     private Dictionary<string, int> CalcDirSizes(string input)
     {
         var lines = InputHelpers.AsLines(input).ToList();
-        var dirSizes = new Dictionary<string, int>();
+        Dictionary<string, int> dirSizes = new();
+        Stack<string> currDir = new();
         
-        string cdStr = "$ cd ";
-        string dirStr = "dir ";
-
-        Stack<string> currDir = new Stack<string>();
         foreach (string line in lines)
         {
-            if (line.StartsWith(cdStr))
+            if (line.StartsWith(CdStr))
             {
-                string cd = line.Substring(cdStr.Length);
+                string cd = line.Substring(CdStr.Length);
                 if (cd == "..")
                 {
                     currDir.Pop();
@@ -50,7 +50,7 @@ public class Y2022D07 : ISolution
             {
                 // nothing 
             }
-            else if (line.StartsWith(dirStr))
+            else if (line.StartsWith(DirStr))
             {
                 // nothing
             }

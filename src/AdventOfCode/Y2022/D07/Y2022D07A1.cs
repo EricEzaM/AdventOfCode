@@ -30,8 +30,8 @@ public class Y2022D07A1 : ISolution
 
     private Dictionary<string, int> CalcDirSizes(string input)
     {
-        var dirSizes = new Dictionary<string, int>();
-        Stack<string> currDir = new Stack<string>();
+        Dictionary<string, int> dirSizes = new();
+        Stack<string> currDir = new();
 
         foreach (string line in InputHelpers.AsLines(input))
         {
