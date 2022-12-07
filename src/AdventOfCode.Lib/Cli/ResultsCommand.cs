@@ -15,16 +15,18 @@ public class ResultsCommand : Command
         var dayOpt = new Argument<int?>("day", "The day filter.");
         var todayOpt = new Option<bool>("--today", "Output results for today's date.");
         var sampleOpt = new Option<bool>("--sample", "Run on sample file, if it exists?");
+        var mdOpt = new Option<bool>(new []{"--markdown", "-md"} , "Display results table in markdown.");
 
         Add(yearOpt);
         Add(dayOpt);
         Add(todayOpt);
         Add(sampleOpt);
+        Add(mdOpt);
 
-        this.SetHandler(HandleCommand, yearOpt, dayOpt, todayOpt, sampleOpt);
+        this.SetHandler(HandleCommand, yearOpt, dayOpt, todayOpt, sampleOpt, mdOpt);
     }
 
-    private void HandleCommand(int? filterYear, int? filterDay, bool today, bool useSample)
+    private void HandleCommand(int? filterYear, int? filterDay, bool today, bool useSample, bool useMarkdown)
     {
         var solutionTypes = Assembly
                             .GetEntryAssembly()!
@@ -42,6 +44,12 @@ public class ResultsCommand : Command
 
         var errs = new List<string>();
         var table = new Table();
+
+        if (useMarkdown)
+        {
+            table.MarkdownBorder();
+        }
+        
         table.AddColumns("Year", "Day", "Alt", "P1", "P1 time", "P1 mem kb delta", "P2", "P2 time", "P2 mem kb delta");
         foreach (var solutionType in solutionTypes)
         {
