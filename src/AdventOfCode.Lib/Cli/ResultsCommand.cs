@@ -74,7 +74,9 @@ public class ResultsCommand : Command
 
             string input = File.ReadAllText(inputFile);
 
+            GC.Collect();
             var (p1, p1Time, p1Mem) = GetSolutionResult(() => solution.SolvePartOne(input));
+            GC.Collect();
             var (p2, p2Time, p2Mem) = GetSolutionResult(() => solution.SolvePartTwo(input));
 
             var p1Expected = GetExpected(solutionType, nameof(ISolution.SolvePartOne), useSample);
