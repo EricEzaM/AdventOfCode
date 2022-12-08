@@ -59,16 +59,16 @@ public class Y2022D08 : ISolution
                 // * Going left/right would put you into a different row of trees
                 int height = dir switch
                 {
-                    Direction.Left => (i - checkRadius) < 0 || i / gw != (i - checkRadius) / gw
+                    Direction.Left => i - checkRadius < 0 || i / gw != (i - checkRadius) / gw
                         ? -1
                         : trees[i - checkRadius],
-                    Direction.Right => (i + checkRadius) < 0 || i / gw != (i + checkRadius) / gw
+                    Direction.Right => i + checkRadius < 0 || i / gw != (i + checkRadius) / gw
                         ? -1
                         : trees[i + checkRadius],
                     Direction.Top => i - checkRadius * gw < 0
                         ? -1
                         : trees[i - checkRadius * gw],
-                    Direction.Bottom => (i + checkRadius * gw) > trees.Length - 1 
+                    Direction.Bottom => i + checkRadius * gw > trees.Length - 1 
                         ? -1
                         : trees[i + checkRadius * gw],
                     _ => throw new ArgumentOutOfRangeException()
