@@ -50,7 +50,7 @@ public class ResultsCommand : Command
             table.MarkdownBorder();
         }
         
-        table.AddColumns("Year", "Day", "Alt", "P1", "P1 time", "P1 mem kb delta", "P2", "P2 time", "P2 mem kb delta");
+        table.AddColumns("Year", "Day", "Alt", "P1", "P1 time", "P1 mem delta", "P2", "P2 time", "P2 mem delta");
         foreach (var solutionType in solutionTypes)
         {
             if (Activator.CreateInstance(solutionType) is not ISolution solution)
@@ -74,9 +74,7 @@ public class ResultsCommand : Command
 
             string input = File.ReadAllText(inputFile);
 
-            GC.Collect();
             var (p1, p1Time, p1Mem) = GetSolutionResult(() => solution.SolvePartOne(input));
-            GC.Collect();
             var (p2, p2Time, p2Mem) = GetSolutionResult(() => solution.SolvePartTwo(input));
 
             var p1Expected = GetExpected(solutionType, nameof(ISolution.SolvePartOne), useSample);
@@ -88,10 +86,10 @@ public class ResultsCommand : Command
                 new Text(altNum.ToString()),
                 new Text(p1.ToString() ?? string.Empty, GetStyle(p1Expected, p1)),
                 new Text(p1Time),
-                new Text($"{p1Mem / 1024d:G6}"),
+                new Text($"{p1Mem / 1024d:G6} kB"),
                 new Text(p2.ToString() ?? string.Empty, GetStyle(p2Expected, p2)),
                 new Text(p2Time),
-                new Text($"{p2Mem / 1024d:G6}"));
+                new Text($"{p2Mem / 1024d:G6} kB"));
         }
 
         AnsiConsole.Write(table);
@@ -106,7 +104,7 @@ public class ResultsCommand : Command
     private (object result, string time, long mem) GetSolutionResult(Func<object> action)
     {
         var sw = Stopwatch.StartNew();
-        long memBefore = GC.GetTotalMemory(false);
+        long memBefore = GC.GetTotalMemory(true);
         object result = action();
         long memAfter = GC.GetTotalMemory(false);
         string time = $"{sw.Elapsed.TotalMilliseconds} ms";
