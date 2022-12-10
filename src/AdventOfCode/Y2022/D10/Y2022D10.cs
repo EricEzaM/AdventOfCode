@@ -1,6 +1,5 @@
 using AdventOfCode.Lib;
 using AdventOfCode.Lib.Attributes;
-using Microsoft.Diagnostics.Tracing.Parsers.MicrosoftWindowsTCPIP;
 
 namespace AdventOfCode.Y2022.D10;
 
@@ -16,50 +15,34 @@ public class Y2022D10 : ISolution
     public object SolvePartOne(string input)
     {
         var commands = InputHelpers.AsLines(input)
-                    .Select(l => l.Split(' '))
-                    .Select(s => (op: s[0], val: s.Length > 1 ? int.Parse(s[1]) : 0));
+                                   .Select(l => l.Split(' '))
+                                   .Select(s => (op: s[0], val: s.Length > 1 ? int.Parse(s[1]) : 0));
 
         int cyclesComplete = 0;
         int x = 1;
         int str = 0;
-        
+
         foreach ((string op, int val) in commands)
         {
-            int cycles = _cycles[op];
-            for (int i = 0; i < cycles; i++)
+            for (int i = 0; i < _cycles[op]; i++)
             {
                 cyclesComplete++;
-
-                if (cyclesComplete == 20 || (cyclesComplete - 20) % 40 == 0)
-                {
-                    str += x * cyclesComplete;
-                }
+                str += cyclesComplete == 20 || (cyclesComplete - 20) % 40 == 0 ? x * cyclesComplete : 0;
             }
 
-            if (op == "addx")
-            {
-                x += val;
-            }
+            x += op == "addx" ? val : 0;
         }
 
         return str;
     }
 
     // ZFBFHGUP
-    private const string P2Expected = @"####.####.###..####.#..#..##..#..#.###..
-...#.#....#..#.#....#..#.#..#.#..#.#..#.
-..#..###..###..###..####.#....#..#.#..#.
-.#...#....#..#.#....#..#.#.##.#..#.###..
-#....#....#..#.#....#..#.#..#.#..#.#....
-####.#....###..#....#..#..###..##..#....";
-    
-    private const string P2ExpectedSample = @"##..##..##..##..##..##..##..##..##..##..
-###...###...###...###...###...###...###.
-####....####....####....####....####....
-#####.....#####.....#####.....#####.....
-######......######......######......####
-#######.......#######.......#######.....";
-    
+    private const string P2Expected =
+        "####.####.###..####.#..#..##..#..#.###..\n...#.#....#..#.#....#..#.#..#.#..#.#..#.\n..#..###..###..###..####.#....#..#.#..#.\n.#...#....#..#.#....#..#.#.##.#..#.###..\n#....#....#..#.#....#..#.#..#.#..#.#....\n####.#....###..#....#..#..###..##..#....";
+
+    private const string P2ExpectedSample =
+        "##..##..##..##..##..##..##..##..##..##..\n###...###...###...###...###...###...###.\n####....####....####....####....####....\n#####.....#####.....#####.....#####.....\n######......######......######......####\n#######.......#######.......#######.....";
+
     [ExpectedResult(P2Expected, Sample = P2ExpectedSample)]
     public object SolvePartTwo(string input)
     {
@@ -71,21 +54,17 @@ public class Y2022D10 : ISolution
         int sprPos = 0;
 
         char[] crtImage = new char[240];
-        
+
         foreach ((string op, int val) in commands)
         {
-            int cycles = _cycles[op];
-            for (int i = 0; i < cycles; i++)
+            for (int i = 0; i < _cycles[op]; i++)
             {
                 var crtRowPos = crtPos % 40;
                 crtImage[crtPos] = crtRowPos >= sprPos && crtRowPos <= sprPos + 2 ? '#' : '.';
                 crtPos++;
             }
 
-            if (op == "addx")
-            {
-                sprPos += val;
-            }
+            sprPos += op == "addx" ? val : 0;
         }
 
         return string.Join("\n", crtImage.Chunk(40).Select(ca => new string(ca)));
