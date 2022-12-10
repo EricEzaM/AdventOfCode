@@ -14,7 +14,7 @@ public class ResultsCommand : Command
         var yearOpt = new Argument<int?>("year", "The year filter.");
         var dayOpt = new Argument<int?>("day", "The day filter.");
         var todayOpt = new Option<bool>("--today", "Output results for today's date.");
-        var sampleOpt = new Option<bool>("--sample", "Run on sample file, if it exists?");
+        var sampleOpt = new Option<bool>("--sample", "Run on sample file, if it exists.");
         var mdOpt = new Option<bool>(new []{"--markdown", "-md"} , "Display results table in markdown.");
 
         Add(yearOpt);

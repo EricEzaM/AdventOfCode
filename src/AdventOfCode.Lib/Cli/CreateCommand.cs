@@ -10,7 +10,9 @@ public class CreateCommand : Command
     private readonly IConfiguration _config;
     private readonly HttpClient _httpClient;
 
-    public CreateCommand(IConfiguration config, HttpClient httpClient) : base("create", "Creates a solution template for a given year and day. Uses today if not year/day provided.")
+    public CreateCommand(IConfiguration config, HttpClient httpClient) : base("create", 
+                                                                              "Creates a solution template for a given year and day. Uses today if not year/day provided. " +
+                                                                              "Downloads input file to input.txt if a session cookie is provided via user secrets or environment variable AOC_SESSION.")
     {
         _config = config;
         _httpClient = httpClient;
