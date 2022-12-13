@@ -8,41 +8,28 @@ public class Y2022D13 : ISolution
     [ExpectedResult(5185, Sample = 13)]
     public object SolvePartOne(string input)
     {
-        var parts = input.Split("\n\n")
+        return input.Split("\n\n")
                          .Select(pair =>
                          {
                              var split = pair.Split('\n');
                              return (new PacketPart(split[0]), new PacketPart(split[1]));
                          })
-                         .ToList();
-
-        int correct = 0;
-        for (int i = 0; i < parts.Count; i++)
-        {
-            (PacketPart l, PacketPart r) = parts[i];
-            correct += l.CompareTo(r) != 1 ? i + 1 : 0;
-        }
-
-        return correct;
+                         .Select((pair, i) => (p: pair, i))
+                         .Aggregate(0, (tot, v) => tot + (v.p.Item1.CompareTo(v.p.Item2) != 1 ? v.i + 1 : 0));
     }
 
     [ExpectedResult(23751, Sample = 140)]
     public object SolvePartTwo(string input)
     {
-        var parts = input.Split("\n")
+        return input.Split("\n")
                          .Where(l => !string.IsNullOrEmpty(l))
                          .Append("[[2]]")
                          .Append("[[6]]")
                          .Select(l => new PacketPart(l))
-                         .ToList();
-
-        parts.Sort();
-
-        var strings = parts.Select(p => p.ToString()).ToList();
-        var one = (strings.IndexOf("[[2]]") + 1);
-        var two = (strings.IndexOf("[[6]]") + 1);
-
-        return one * two;
+                         .Order()
+                         .Select((p, i) => (p, i))
+                         .Where(v => v.p.ToString() is "[[2]]" or "[[6]]")
+                         .Aggregate(1, (tot, v) =>  tot * (v.i + 1));
     }
 
     private class PacketPart : IComparable<PacketPart>
