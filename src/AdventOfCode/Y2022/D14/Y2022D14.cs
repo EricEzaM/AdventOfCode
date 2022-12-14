@@ -102,6 +102,10 @@ public class Y2022D14 : ISolution
         return sands.Count;
     }
 
+    /// <summary>
+    /// Gets a list of points that make up all walls, based on an array of 'walls'
+    /// made up from an array of points that contain the corner points of the wall.
+    /// </summary>
     private HashSet<Point> GetWallPoints(Point[][] walls)
     {
         HashSet<Point> wallPoints = new();
@@ -115,6 +119,7 @@ public class Y2022D14 : ISolution
                 var dy = b.Y - a.Y;
 
                 wallPoints.Add(a);
+                // Go from a to b 1 point at a time until b is reached.
                 while (a != b)
                 {
                     a = dx == 0 ? a with {Y = a.Y + Math.Sign(dy)} : a with {X = a.X + Math.Sign(dx)};
