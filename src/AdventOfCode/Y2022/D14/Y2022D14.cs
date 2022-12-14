@@ -33,18 +33,32 @@ public class Y2022D14 : ISolution
                                 .ToArray();
 
 
-        return GetSettledCount(GetWallPoints(walls));
+        return GetSettledCount(GetWallPoints(walls), false);
     }
 
-    [ExpectedResult("", Sample = "")]
+    [ExpectedResult("", Sample = 93)]
     public object SolvePartTwo(string input)
     {
-        return string.Empty;
+        var walls = InputHelpers.AsLines(input)
+                                .Select(l => l.Split(" -> "))
+                                .Select(point => point.Select(xy =>
+                                                      {
+                                                          var split = xy.Split(',')
+                                                                        .Select(int.Parse)
+                                                                        .ToArray();
+                                                          return new Point(split[0], split[1]);
+                                                      })
+                                                      .ToArray())
+                                .ToArray();
+
+
+        return GetSettledCount(GetWallPoints(walls), true);
     }
 
-    private int GetSettledCount(HashSet<Point> walls)
+    private int GetSettledCount(HashSet<Point> walls, bool hasFloor)
     {
         int maxY = walls.Max(p => p.Y);
+        int floor = maxY + 2;
         HashSet<Point> sands = new HashSet<Point>();
 
         bool complete = false;
@@ -59,16 +73,22 @@ public class Y2022D14 : ISolution
             {
                 var nextPoint = _possibleMoves.Select(delta => current + delta)
                                               .FirstOrDefault(tryPoint => !sands.Contains(tryPoint) &&
-                                                                          !walls.Contains(tryPoint));
+                                                                          !walls.Contains(tryPoint) &&
+                                                                          !(hasFloor && tryPoint.Y >= floor));
 
                 if (nextPoint is null)
                 {
                     sands.Add(current);
+                    if (path.Count == 0)
+                    {
+                        complete = true;
+                        break;
+                    }
                     current = path.Pop();
                     break;
                 }
 
-                if (nextPoint.Y >= maxY)
+                if (!hasFloor && nextPoint.Y >= maxY)
                 {
                     complete = true;
                     break;
