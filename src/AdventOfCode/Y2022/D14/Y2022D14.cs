@@ -36,7 +36,7 @@ public class Y2022D14 : ISolution
         return GetSettledCount(GetWallPoints(walls), false);
     }
 
-    [ExpectedResult("", Sample = 93)]
+    [ExpectedResult(26139, Sample = 93)]
     public object SolvePartTwo(string input)
     {
         var walls = InputHelpers.AsLines(input)
