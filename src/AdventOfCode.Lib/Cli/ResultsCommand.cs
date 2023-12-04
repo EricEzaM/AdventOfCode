@@ -64,18 +64,26 @@ public class ResultsCommand : Command
             }
 
             int altNum = GetAlternativeNumber(solutionType);
-            string inputFile = Path.Combine(yearText, dayText, useSample ? "sample.txt" : "input.txt");
-            if (!File.Exists(inputFile))
+            string inputFilePart1 = Path.Combine(yearText, dayText, useSample ? "sample.txt" : "input.txt");
+            if (!File.Exists(inputFilePart1))
             {
                 table.AddRow(yearText, dayText, altNum.ToString(), "???", "???", "???", "???");
-                errs.Add($"Failed to find input file for {yearText} {dayText}: {inputFile}");
+                errs.Add($"Failed to find input file for {yearText} {dayText}: {inputFilePart1}");
                 continue;
             }
 
-            string input = File.ReadAllText(inputFile);
+            string input = File.ReadAllText(inputFilePart1);
+            
+            // Handle having a 2nd file for input specifically for part 2
+            string inputPart2 = input;
+            string inputFilePart2 = Path.Combine(yearText, dayText, useSample ? "sample-pt2.txt" : "input.txt");
+            if (useSample && File.Exists(inputFilePart2))
+            {
+                inputPart2 = File.ReadAllText(inputFilePart2);
+            }
 
             var (p1, p1Time, p1Mem) = GetSolutionResult(() => solution.SolvePartOne(input));
-            var (p2, p2Time, p2Mem) = GetSolutionResult(() => solution.SolvePartTwo(input));
+            var (p2, p2Time, p2Mem) = GetSolutionResult(() => solution.SolvePartTwo(inputPart2));
 
             var p1Expected = GetExpected(solutionType, nameof(ISolution.SolvePartOne), useSample);
             var p2Expected = GetExpected(solutionType, nameof(ISolution.SolvePartTwo), useSample);

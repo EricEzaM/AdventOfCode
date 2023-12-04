@@ -15,7 +15,7 @@
     },
     "Results Day Sample": {
       "commandName": "Project",
-      "commandLineArgs": "results 2022 8 --sample"
+      "commandLineArgs": "results 2023 3 --sample"
     },
     "Results Today": {
       "commandName": "Project",

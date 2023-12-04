@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using AdventOfCode.Lib;
 using AdventOfCode.Lib.Attributes;
+using AdventOfCode.Lib.Helpers;
 using Spectre.Console;
 
 namespace AdventOfCode.Y2022.D12;
@@ -141,7 +142,7 @@ public class Y2022D12 : ISolution
     [ExpectedResult(425, Sample = 31)]
     public object SolvePartOne(string input)
     {
-        var grid = InputHelpers.AsGrid(input);
+        var grid = InputHelpers.AsCharGrid(input);
         var graph = new Graph(grid);
         var path = graph.AStar(graph.Cells.Single(c => c.Value == 'S'),
                                graph.Cells.Single(c => c.Value == 'E'),
@@ -165,7 +166,7 @@ public class Y2022D12 : ISolution
     [ExpectedResult("", Sample = 29)]
     public object SolvePartTwo(string input)
     {
-        var grid = InputHelpers.AsGrid(input);
+        var grid = InputHelpers.AsCharGrid(input);
         var graph = new Graph(grid);
 
         var hikeEnd = graph.Cells.Single(c => c.Value == 'E');

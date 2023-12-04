@@ -1,5 +1,6 @@
 using AdventOfCode.Lib;
 using AdventOfCode.Lib.Attributes;
+using AdventOfCode.Lib.Helpers;
 
 namespace AdventOfCode.Y2022.D03;
 

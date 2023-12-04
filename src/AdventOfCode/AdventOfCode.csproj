@@ -24,6 +24,9 @@
         <None Include="**/sample.txt" Exclude="bin/**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Include="**/sample-pt2.txt" Exclude="bin/**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
         <None Remove="BenchmarkDotNet.Artifacts\**" />
     </ItemGroup>
 
