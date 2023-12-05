@@ -15,7 +15,7 @@ public class ResultsCommand : Command
         var dayOpt = new Argument<int?>("day", "The day filter.");
         var todayOpt = new Option<bool>("--today", "Output results for today's date.");
         var sampleOpt = new Option<bool>("--sample", "Run on sample file, if it exists.");
-        var mdOpt = new Option<bool>(new []{"--markdown", "-md"} , "Display results table in markdown.");
+        var mdOpt = new Option<bool>(new[] { "--markdown", "-md" }, "Display results table in markdown.");
 
         Add(yearOpt);
         Add(dayOpt);
@@ -29,10 +29,10 @@ public class ResultsCommand : Command
     private void HandleCommand(int? filterYear, int? filterDay, bool today, bool useSample, bool useMarkdown)
     {
         var solutionTypes = Assembly
-                            .GetEntryAssembly()!
-                            .GetTypes()
-                            .Where(t => t.GetInterface(nameof(ISolution)) is not null)
-                            .OrderBy(t => t.FullName);
+            .GetEntryAssembly()!
+            .GetTypes()
+            .Where(t => t.GetInterface(nameof(ISolution)) is not null)
+            .OrderBy(t => t.FullName);
 
         if (today)
         {
@@ -49,7 +49,7 @@ public class ResultsCommand : Command
         {
             table.MarkdownBorder();
         }
-        
+
         table.AddColumns("Year", "Day", "Alt", "P1", "P1 time", "P1 mem delta", "P2", "P2 time", "P2 mem delta");
         foreach (var solutionType in solutionTypes)
         {
@@ -73,7 +73,7 @@ public class ResultsCommand : Command
             }
 
             string input = File.ReadAllText(inputFilePart1);
-            
+
             // Handle having a 2nd file for input specifically for part 2
             string inputPart2 = input;
             string inputFilePart2 = Path.Combine(yearText, dayText, useSample ? "sample-pt2.txt" : "input.txt");
@@ -137,13 +137,37 @@ public class ResultsCommand : Command
         return sample ? attr?.Sample : attr?.Expected;
     }
 
-    private Style GetStyle(object? expected, object actual) =>
-        expected is null
-            ? Style.Plain
-            : new Style(expected.Equals(actual) ? Color.Green : Color.Red);
+    private Style GetStyle(object? expected, object actual)
+    {
+        if (expected is null)
+        {
+            return Style.Plain;
+        }
+
+        if (expected.Equals(actual))
+        {
+            return new Style(Color.Green);
+        }
+
+        if (expected.GetType() == actual.GetType())
+        {
+            return new Style(Color.Red);
+        }
+
+        try
+        {
+            object newExpected = Convert.ChangeType(expected, actual.GetType());
+            return GetStyle(newExpected, actual);
+        }
+        catch (Exception)
+        {
+            // Convert failed
+            return new Style(Color.Red);
+        }
+    }
 
     private bool DoesClassPassFilter(Type type, int? filterYear, int? filterDay, out string yearText,
-                                     out string dayText)
+        out string dayText)
     {
         string[] namespaceComponents = type.Namespace!.Split(".");
 
