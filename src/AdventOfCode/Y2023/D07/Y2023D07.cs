@@ -59,24 +59,31 @@ public class Y2023D07 : ISolution
             FourKind,
             FiveKind,
         }
-        
+
         public string CardsString { get; }
 
         public EHandType HandType { get; }
 
-        public Hand(string cardsString, int bid, bool considerJokers = false)
+        public Hand(string cardsString, int bid, bool useJokers = false)
         {
             CardsString = cardsString;
             Cards = cardsString.ToCharArray();
             Bid = bid;
 
-            List<(char card, int count)> charCounts = cardsString.GroupBy(c => c)
-                .Select(g => (card: g.Key, count: g.Count()))
-                .OrderByDescending(t => t.count)
-                .ToList();
+            Dictionary<char, int> cardCounts = Cards.GroupBy(c => c)
+                .ToDictionary(g => g.Key, g => g.Count());
+            
+            if (useJokers)
+            {
+                TransformJokers(cardCounts);
+            }
 
-            char primaryCard = charCounts[0].card;
-            HandType = charCounts.Select(t => t.count).ToList() switch
+            List<int> countsOrdered = cardCounts
+                .Values
+                .OrderByDescending(t => t)
+                .ToList();
+            
+            HandType = countsOrdered switch
             {
                 [1, ..] => EHandType.High,
                 [2, 1, ..] => EHandType.OneP,
@@ -85,41 +92,28 @@ public class Y2023D07 : ISolution
                 [3, 2, ..] => EHandType.FullHouse,
                 [4, ..] => EHandType.FourKind,
                 [5, ..] => EHandType.FiveKind,
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException(string.Join(",", countsOrdered))
             };
-
-            if (considerJokers)
-            {
-                EHandType originalType = HandType;
-                int jCount = Cards.Count(c => c == 'J');
-                for (int i = 0; i < jCount; i++)
-                {
-                    HandType = ApplyJoker(originalType, HandType, primaryCard);
-                }
-            }
         }
 
         public char[] Cards { get; init; }
         public int Bid { get; init; }
 
-        private EHandType ApplyJoker(EHandType originalType, EHandType currentType, char primaryCard)
+        private void TransformJokers(Dictionary<char, int> cardCounts)
         {
-            if (primaryCard == 'J' && originalType == EHandType.OneP)
+            if (!cardCounts.TryGetValue('J', out int jokerCount))
             {
-                return EHandType.ThreeKind;
+                return;
+            }
+
+            if (jokerCount == 5)
+            {
+                return;
             }
             
-            return currentType switch
-            {
-                EHandType.High => EHandType.OneP,
-                EHandType.OneP => EHandType.ThreeKind,
-                EHandType.TwoP => EHandType.FullHouse,
-                EHandType.ThreeKind => EHandType.FourKind,
-                EHandType.FullHouse => EHandType.FourKind,
-                EHandType.FourKind => EHandType.FiveKind,
-                EHandType.FiveKind => EHandType.FiveKind,
-                _ => throw new ArgumentOutOfRangeException(nameof(currentType), currentType, null)
-            };
+            char jokerTransformsTo = cardCounts.Where(kvp => kvp.Key != 'J').MaxBy(kvp => kvp.Value).Key;
+            cardCounts[jokerTransformsTo] += jokerCount;
+            cardCounts.Remove('J');
         }
     }
 
@@ -148,16 +142,11 @@ public class Y2023D07 : ISolution
             .Select(l =>
             {
                 string[] split = l.Split(' ');
-                return new Hand(split[0], int.Parse(split[1]), considerJokers: true);
+                return new Hand(split[0], int.Parse(split[1]), useJokers: true);
             })
             .OrderBy(h => h, comparer)
             .ToList();
 
-        foreach (var hand in list)
-        {
-            Console.WriteLine($"{hand.CardsString} = {hand.HandType}");
-        }
-        
         return list.Select((hand, idx) => (hand, idx))
             .Aggregate(0, (total, tuple) => total + tuple.hand.Bid * (tuple.idx + 1));
     }
