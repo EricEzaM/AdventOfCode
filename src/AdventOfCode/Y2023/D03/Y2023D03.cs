@@ -20,7 +20,7 @@ public class Y2023D03 : ISolution
         List<List<Cell>> numberCellGroups = GetNumberCellGroups(grid);
 
         List<List<Cell>> numberCellGroupsWhichNeighbourSymbols = numberCellGroups
-            .Where(cellGroup => symbolCells.Any(symbolCell => cellGroup.Any(cell => cell.Neighbours8Direction(symbolCell))))
+            .Where(cellGroup => symbolCells.Any(symbolCell => cellGroup.Any(cell => cell.IsNeighbour8Direction(symbolCell))))
             .ToList();
 
         List<int> numbersNeighboringSymbols = numberCellGroupsWhichNeighbourSymbols
@@ -44,7 +44,7 @@ public class Y2023D03 : ISolution
         foreach (Cell gearCell in gearCells)
         {
             var adjacentNumberGroups = numberCellGroups
-                .Where(group => group.Any(groupCell => groupCell.Neighbours8Direction(gearCell)))
+                .Where(group => group.Any(groupCell => groupCell.IsNeighbour8Direction(gearCell)))
                 .ToList();
 
             if (adjacentNumberGroups.Count < 2)
@@ -75,7 +75,7 @@ public class Y2023D03 : ISolution
                 continue;
             }
 
-            if (currentCell.NeighboursX(currentGroup.Last()))
+            if (currentCell.IsNeighbourX(currentGroup.Last()))
             {
                 currentGroup.Add(currentCell);
                 continue;

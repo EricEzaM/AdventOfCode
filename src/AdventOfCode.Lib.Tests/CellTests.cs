@@ -14,6 +14,6 @@ public class CellTests
         var cellCenter = new Cell(' ', 2, 2);
         var testCell = new Cell(' ', row, col);
         
-        Assert.That(cellCenter.Neighbours8Direction(testCell), Is.EqualTo(isNeighbor));
+        Assert.That(cellCenter.IsNeighbour8Direction(testCell), Is.EqualTo(isNeighbor));
     }
 }

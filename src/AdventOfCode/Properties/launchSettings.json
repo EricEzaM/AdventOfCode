@@ -11,11 +11,11 @@
     },
     "Results Day": {
       "commandName": "Project",
-      "commandLineArgs": "results 2023 5"
+      "commandLineArgs": "results 2023 10"
     },
     "Results Day Sample": {
       "commandName": "Project",
-      "commandLineArgs": "results 2023 9 --sample"
+      "commandLineArgs": "results 2023 10 --sample"
     },
     "Results Today": {
       "commandName": "Project",
